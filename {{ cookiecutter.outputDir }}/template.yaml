@@ -1,0 +1,71 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+
+Transform: AWS::Serverless-2016-10-31
+
+Description: >
+  {{ cookiecutter.projectName }}
+
+Parameters:
+  ProjectName:
+    Description: Name for this project
+    Type: String
+    Default: {{ cookiecutter.projectName }}
+
+Globals:
+  Function:
+    Architectures:
+      - arm64
+    MemorySize: 256
+    Timeout: 10
+    Tracing: Active
+    Runtime: nodejs20.x
+    Tags:
+      ProjectName: !Ref ProjectName
+
+Metadata:
+  # @see https://www.andmore.dev/blog/sam-yaml-anchors
+  esbuild-properties: &esbuild-properties
+    Format: esm
+    OutExtension:
+      - .js=.mjs
+    Minify: false
+    Sourcemap: false
+    Target: ES2020
+    Banner:
+      - js=import { createRequire } from 'module'; const require = createRequire(import.meta.url);
+
+Resources:
+  #
+  # Lambda function
+  #
+  MyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: functions/myFunction.handler
+      # Policies:
+      #   - DynamoDBCrudPolicy:
+      #       TableName: !Ref TableName
+      Tags:
+        ProjectName: !Ref ProjectName
+      Environment:
+        Variables:
+          # OrdersTable: !Ref OrdersTable
+          POWERTOOLS_SERVICE_NAME: handleOrders
+      # Events:
+        
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        <<: *esbuild-properties
+        EntryPoints:
+          - functions/myFunction.js
+
+  MyFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    DependsOn: MyFunction
+    Properties:
+      RetentionInDays: 3
+      LogGroupName: !Sub "/aws/lambda/${MyFunction}"

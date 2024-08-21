@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "@aws-lambda-powertools/logger": "^2.0.3",
+    "@aws-lambda-powertools/metrics": "^2.0.3",
+    "@aws-lambda-powertools/tracer": "^2.0.3"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.136"
+  },
+  "scripts": {
+    "build": "sam build --cached --parallel",
+    "deploy": "sam build --cached --parallel && sam deploy --no-fail-on-empty-changeset",
+    "lint": "eslint {**..}/*.js --no-error-on-unmatched-pattern"
+  }
+}

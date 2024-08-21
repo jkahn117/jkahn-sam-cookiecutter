@@ -1,0 +1,7 @@
+node_modules
+.DS_Store
+samconfig.toml
+.aws-sam
+packaged.yaml
+tmp
+.aws
